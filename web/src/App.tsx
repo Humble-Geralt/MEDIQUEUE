@@ -255,65 +255,6 @@ export default function App() {
         </div>
       </header>
 
-      <section className="bg-stone-100 border-b border-stone-200 px-6 py-2.5 flex items-center justify-between text-xs overflow-x-auto min-h-[44px]">
-        <div className="flex items-center space-x-1.5 whitespace-nowrap">
-          <span className="text-[10px] font-black tracking-wider text-stone-400 mr-2 uppercase">VIEW MODES</span>
-
-          <button
-            onClick={() => setViewMode('sandbox')}
-            className={`px-3 py-1.5 rounded-lg font-bold flex items-center transition-all cursor-pointer ${
-              viewMode === 'sandbox'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'text-[#433F3B] hover:text-stone-850 hover:bg-stone-200/50'
-            }`}
-          >
-            <LayoutGrid className="h-3.5 w-3.5 mr-1.5" />
-            {language === 'zh' ? '三端联动中心' : 'All-in-One Sandbox'}
-          </button>
-
-          <button
-            onClick={() => setViewMode('doctor')}
-            className={`px-3 py-1.5 rounded-lg font-bold flex items-center transition-all cursor-pointer ${
-              viewMode === 'doctor'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'text-[#433F3B] hover:text-stone-850 hover:bg-stone-200/50'
-            }`}
-          >
-            <Users className="h-3.5 w-3.5 mr-1.5" />
-            {language === 'zh' ? '医生诊室' : 'Doctor Specialist Room'}
-          </button>
-
-          <button
-            onClick={() => setViewMode('tv')}
-            className={`px-3 py-1.5 rounded-lg font-bold flex items-center transition-all cursor-pointer ${
-              viewMode === 'tv'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'text-[#433F3B] hover:text-stone-850 hover:bg-stone-200/50'
-            }`}
-          >
-            <MonitorPlay className="h-3.5 w-3.5 mr-1.5" />
-            {language === 'zh' ? '候诊大屏' : 'Broadcast TV Display'}
-          </button>
-
-          <button
-            onClick={() => setViewMode('mobile')}
-            className={`px-3 py-1.5 rounded-lg font-bold flex items-center transition-all cursor-pointer ${
-              viewMode === 'mobile'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'text-[#433F3B] hover:text-stone-850 hover:bg-stone-200/50'
-            }`}
-          >
-            <Smartphone className="h-3.5 w-3.5 mr-1.5" />
-            {language === 'zh' ? '患者移动端' : 'Patient Mobile App'}
-          </button>
-        </div>
-
-        <div className="hidden md:flex items-center space-x-2 text-[10px] text-stone-400 font-bold uppercase tracking-widest">
-          <Award className="h-3.5 w-3.5 text-emerald-600" />
-          <span>Live FastAPI Connected</span>
-        </div>
-      </section>
-
       <main className="flex-1 p-6 overflow-hidden max-w-7xl mx-auto w-full">
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
           <div className="xl:col-span-4 flex justify-center z-10 sticky top-24">
