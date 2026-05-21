@@ -201,3 +201,45 @@ AI 负责：
 人工负责：
 
 #### 2.4.3 如何判断分工
+
+## 3. Quick Start
+
+本项目由后端 API 和前端三端（医生端、大屏端、患者端）组成。请按照以下步骤启动：
+
+### 3.1 后端启动 (Python / FastAPI)
+
+1. **环境准备**：确保你的系统已安装 [uv](https://docs.astral.sh/uv/)。
+2. **配置环境变量**：
+   ```powershell
+   copy api/.env.example api/.env
+   ```
+   编辑 `api/.env`，填写 `DEEPSEEK_API_KEY`（如不填写，系统将自动回退到 `MockLlmAdapter`）。
+3. **运行服务**：
+   ```powershell
+   uv --directory api sync
+   uv --directory api run uvicorn main:app --reload
+   ```
+   后端默认运行在：`http://127.0.0.1:8000`
+
+### 3.2 前端启动 (React / Vite)
+
+1. **安装依赖**：
+   ```powershell
+   cd web
+   npm install
+   ```
+2. **启动开发服务器**：
+   本项目提供多个启动入口，建议分别开启三个终端运行：
+   - **医生工作站**: `npm run dev:doctor` (端口 5173)
+   - **候诊大屏**: `npm run dev:tv` (端口 5174)
+   - **患者端 (H5)**: `npm run dev:mobile` (端口 5175)
+   - **集成调试页**: `npm run dev` (端口 5176)
+
+### 3.3 访问地址预览
+
+| 终端 | 访问地址 | 说明 |
+| --- | --- | --- |
+| **医生端** | [http://localhost:5173](http://localhost:5173) | 叫号、跳过、审核优先申请 |
+| **候诊大屏** | [http://localhost:5174](http://localhost:5174) | 双语播报、队列实时状态 |
+| **患者端** | [http://localhost:5175](http://localhost:5175) | 查看进度、申请紧急优先 |
+| **演示中心** | [http://localhost:5176](http://localhost:5176) | 用于在一屏内观察三端联动 |
