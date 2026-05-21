@@ -215,7 +215,7 @@ AI 负责：
 
 ## 3. Quick Start
 
-本项目提供了**一键启动脚本**，可以自动引导配置 API Key 并拉起全栈服务。
+本项目提供了**一键启动脚本**，可以自动引导配置 API Key、安装依赖并拉起全栈服务。
 
 ### 3.1 一键启动 (推荐)
 
@@ -231,34 +231,38 @@ AI 负责：
 
 **脚本功能：**
 1. **自动配置**：首次运行会提示输入 `DEEPSEEK_API_KEY` 并自动保存到 `api/.env`。
-2. **全栈拉起**：自动启动 FastAPI 后端（端口 8000）及四个前端视图入口。
-3. **一键清理**：按下 `Ctrl+C` 即可同时停止后端和所有前端进程。
+2. **自动装包**：启动前自动执行 `uv sync` 和 `npm install`。
+3. **全栈拉起**：自动启动 FastAPI 后端（端口 8000）及 Web 前端服务（端口 5173）。
+4. **一键清理**：按下 `Ctrl+C` 即可同时停止所有后台进程，确保端口不被残留占用。
 
 ### 3.2 访问地址预览
 
-启动后，您可以访问以下地址：
+启动后，统一通过 **5173 端口** 配合视图参数进行访问：
 
 | 终端 | 访问地址 | 说明 |
 | --- | --- | --- |
-| **演示中心** | [http://localhost:5176](http://localhost:5176) | **主力演示页**：一屏观察三端实时联动 |
-| **医生端** | [http://localhost:5173](http://localhost:5173) | 独立医生工作站：叫号、跳过、审核 |
-| **候诊大屏** | [http://localhost:5174](http://localhost:5174) | 独立大屏：双语播报、队列高亮 |
-| **患者端** | [http://localhost:5175](http://localhost:5175) | 独立手机端：查看进度、申请加急 |
+| **演示中心** | [http://localhost:5173/?view=sandbox](http://localhost:5173/?view=sandbox) | **主力演示页**：一屏观察三端实时联动 |
+| **医生端** | [http://localhost:5173/?view=doctor](http://localhost:5173/?view=doctor) | 独立医生工作站：叫号、跳过、审核 |
+| **候诊大屏** | [http://localhost:5173/?view=tv](http://localhost:5173/?view=tv) | 独立大屏：双语播报、队列高亮 |
+| **患者端** | [http://localhost:5173/?view=mobile](http://localhost:5173/?view=mobile) | 独立手机端：查看进度、申请加急 |
 
 ---
 
 ### 3.3 手动分步启动 (进阶)
 
-如果您需要调试特定端，也可以手动分步启动：
+如果您需要进行深度调试，也可以手动启动：
 
 #### 3.3.1 后端启动 (Python / FastAPI)
-1. **环境准备**：确保已安装 [uv](https://docs.astral.sh/uv/)。
+1. **安装 uv**：确保已安装 [uv](https://docs.astral.sh/uv/)。
 2. **配置环境**：`copy api/.env.example api/.env` 并填写 Key。
 3. **运行**：
    ```powershell
-   uv --directory api run uvicorn main:app --reload
+   cd api
+   uv sync
+   uv run uvicorn main:app --reload
    ```
 
 #### 3.3.2 前端启动 (React / Vite)
-1. **安装**：`cd web && npm install`
-2. **启动**：分别运行 `npm run dev:doctor`, `npm run dev:tv`, `npm run dev:mobile` 或 `npm run dev`。
+1. **安装依赖**：`cd web && npm install`
+2. **启动服务**：`npm run dev`
+3. **访问视图**：在浏览器打开 `http://localhost:5173` 并手动添加 `?view=doctor` 等参数。

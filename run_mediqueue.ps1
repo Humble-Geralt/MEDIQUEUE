@@ -1,4 +1,4 @@
-﻿# MediQueue One-click Startup Script (PowerShell)
+﻿# MediQueue One-click Startup Script (PowerShell) - Single Frontend Mode
 
 $ErrorActionPreference = "Stop"
 
@@ -34,14 +34,8 @@ if ($envContent -notmatch "DEEPSEEK_API_KEY=sk-") {
 
 # 2. Dependency Installation
 Write-Host "--- Installing Dependencies ---" -ForegroundColor Cyan
-
-Write-Host "[1/2] Installing Backend Dependencies (uv sync)..." -ForegroundColor Yellow
 Start-Process "cmd.exe" -ArgumentList "/c uv sync" -WorkingDirectory "api" -NoNewWindow -Wait
-
-Write-Host "[2/2] Installing Frontend Dependencies (npm install)..." -ForegroundColor Yellow
 Start-Process "cmd.exe" -ArgumentList "/c npm install" -WorkingDirectory "web" -NoNewWindow -Wait
-
-Write-Host "--- Starting MediQueue Full Stack ---" -ForegroundColor Cyan
 
 # Function to safely kill process tree
 function Stop-ProcessTree($pid) {
@@ -50,35 +44,32 @@ function Stop-ProcessTree($pid) {
     }
 }
 
+Write-Host "--- Starting MediQueue Full Stack ---" -ForegroundColor Cyan
+
 # 3. Start Backend
 Write-Host "[1/2] Starting FastAPI Backend (Port 8000)..." -ForegroundColor Yellow
 $backendJob = Start-Process -FilePath "cmd.exe" -ArgumentList "/c uv run uvicorn main:app --host 0.0.0.0 --port 8000 > backend.log 2>&1" -WorkingDirectory "api" -NoNewWindow -PassThru
 
-# Wait for backend
+# 4. Start Single Frontend (Port 5173)
+Write-Host "[2/2] Starting Web Frontend (Port 5173)..." -ForegroundColor Yellow
+# Use dev:doctor script as it defaults to port 5173
+$frontendJob = Start-Process -FilePath "cmd.exe" -ArgumentList "/c npm run dev:doctor > frontend.log 2>&1" -WorkingDirectory "web" -NoNewWindow -PassThru
+
+# Wait for readiness
 Start-Sleep -Seconds 2
-
-# 4. Start Frontends
-Write-Host "[2/2] Starting Web Frontends (Redirection to logs)..." -ForegroundColor Yellow
-
-$frontendProcesses = @()
-
-$frontendTasks = @(
-    @{ name = "Sandbox"; script = "dev:center"; port = 5176; log = "sandbox.log"; view = "sandbox" },
-    @{ name = "Doctor"; script = "dev:doctor"; port = 5173; log = "doctor.log"; view = "doctor" },
-    @{ name = "TV Display"; script = "dev:tv"; port = 5174; log = "tv.log"; view = "tv" },
-    @{ name = "Mobile App"; script = "dev:mobile"; port = 5175; log = "mobile.log"; view = "mobile" }
-)
-
-foreach ($task in $frontendTasks) {
-    # Ensure correct view is used by adding query param in the displayed URL
-    Write-Host "  > Launching $($task.name): http://127.0.0.1:$($task.port)/?view=$($task.view)" -ForegroundColor Gray
-    $p = Start-Process -FilePath "cmd.exe" -ArgumentList "/c npm run $($task.script) > $($task.log) 2>&1" -WorkingDirectory "web" -NoNewWindow -PassThru
-    $frontendProcesses += $p
-}
 
 Write-Host "------------------------------------------------" -ForegroundColor Green
 Write-Host "MediQueue is now running!" -ForegroundColor Green
-Write-Host "Press Ctrl+C to stop all services." -ForegroundColor Cyan
+Write-Host "" -ForegroundColor White
+Write-Host "主力演示链接 (Recommended):" -ForegroundColor White
+Write-Host "  > Sandbox: http://127.0.0.1:5173/?view=sandbox" -ForegroundColor Cyan
+Write-Host "" -ForegroundColor White
+Write-Host "独立端链接 (Standalone):" -ForegroundColor White
+Write-Host "  > Doctor:  http://127.0.0.1:5173/?view=doctor" -ForegroundColor Gray
+Write-Host "  > TV View: http://127.0.0.1:5173/?view=tv" -ForegroundColor Gray
+Write-Host "  > Mobile:  http://127.0.0.1:5173/?view=mobile" -ForegroundColor Gray
+Write-Host "" -ForegroundColor White
+Write-Host "Press Ctrl+C to stop all services." -ForegroundColor Yellow
 Write-Host "------------------------------------------------" -ForegroundColor Green
 
 try {
@@ -86,10 +77,8 @@ try {
         Start-Sleep -Seconds 1
     }
 } finally {
-    Write-Host "Stopping all services (Cleaning process trees)..." -ForegroundColor Red
+    Write-Host "Stopping all services..." -ForegroundColor Red
     Stop-ProcessTree $backendJob.Id
-    foreach ($p in $frontendProcesses) {
-        Stop-ProcessTree $p.Id
-    }
+    Stop-ProcessTree $frontendJob.Id
     Write-Host "Cleanup complete." -ForegroundColor Green
 }
