@@ -204,42 +204,50 @@ AI 负责：
 
 ## 3. Quick Start
 
-本项目由后端 API 和前端三端（医生端、大屏端、患者端）组成。请按照以下步骤启动：
+本项目提供了**一键启动脚本**，可以自动引导配置 API Key 并拉起全栈服务。
 
-### 3.1 后端启动 (Python / FastAPI)
+### 3.1 一键启动 (推荐)
 
-1. **环境准备**：确保你的系统已安装 [uv](https://docs.astral.sh/uv/)。
-2. **配置环境变量**：
-   ```powershell
-   copy api/.env.example api/.env
-   ```
-   编辑 `api/.env`，填写 `DEEPSEEK_API_KEY`（如不填写，系统将自动回退到 `MockLlmAdapter`）。
-3. **运行服务**：
-   ```powershell
-   uv --directory api sync
-   uv --directory api run uvicorn main:app --reload
-   ```
-   后端默认运行在：`http://127.0.0.1:8000`
+- **Windows (PowerShell)**:
+  ```powershell
+  ./run_mediqueue.ps1
+  ```
+- **Linux / macOS (Bash)**:
+  ```bash
+  chmod +x run_mediqueue.sh
+  ./run_mediqueue.sh
+  ```
 
-### 3.2 前端启动 (React / Vite)
+**脚本功能：**
+1. **自动配置**：首次运行会提示输入 `DEEPSEEK_API_KEY` 并自动保存到 `api/.env`。
+2. **全栈拉起**：自动启动 FastAPI 后端（端口 8000）及四个前端视图入口。
+3. **一键清理**：按下 `Ctrl+C` 即可同时停止后端和所有前端进程。
 
-1. **安装依赖**：
-   ```powershell
-   cd web
-   npm install
-   ```
-2. **启动开发服务器**：
-   本项目提供多个启动入口，建议分别开启三个终端运行：
-   - **医生工作站**: `npm run dev:doctor` (端口 5173)
-   - **候诊大屏**: `npm run dev:tv` (端口 5174)
-   - **患者端 (H5)**: `npm run dev:mobile` (端口 5175)
-   - **集成调试页**: `npm run dev` (端口 5176)
+### 3.2 访问地址预览
 
-### 3.3 访问地址预览
+启动后，您可以访问以下地址：
 
 | 终端 | 访问地址 | 说明 |
 | --- | --- | --- |
-| **医生端** | [http://localhost:5173](http://localhost:5173) | 叫号、跳过、审核优先申请 |
-| **候诊大屏** | [http://localhost:5174](http://localhost:5174) | 双语播报、队列实时状态 |
-| **患者端** | [http://localhost:5175](http://localhost:5175) | 查看进度、申请紧急优先 |
-| **演示中心** | [http://localhost:5176](http://localhost:5176) | 用于在一屏内观察三端联动 |
+| **演示中心** | [http://localhost:5176](http://localhost:5176) | **主力演示页**：一屏观察三端实时联动 |
+| **医生端** | [http://localhost:5173](http://localhost:5173) | 独立医生工作站：叫号、跳过、审核 |
+| **候诊大屏** | [http://localhost:5174](http://localhost:5174) | 独立大屏：双语播报、队列高亮 |
+| **患者端** | [http://localhost:5175](http://localhost:5175) | 独立手机端：查看进度、申请加急 |
+
+---
+
+### 3.3 手动分步启动 (进阶)
+
+如果您需要调试特定端，也可以手动分步启动：
+
+#### 3.3.1 后端启动 (Python / FastAPI)
+1. **环境准备**：确保已安装 [uv](https://docs.astral.sh/uv/)。
+2. **配置环境**：`copy api/.env.example api/.env` 并填写 Key。
+3. **运行**：
+   ```powershell
+   uv --directory api run uvicorn main:app --reload
+   ```
+
+#### 3.3.2 前端启动 (React / Vite)
+1. **安装**：`cd web && npm install`
+2. **启动**：分别运行 `npm run dev:doctor`, `npm run dev:tv`, `npm run dev:mobile` 或 `npm run dev`。
