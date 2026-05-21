@@ -4,12 +4,19 @@ import { Tv, Volume2, Users, AlertTriangle, MessageSquare, ShieldAlert } from 'l
 
 export function renderDesensitizedName(name: string, gender: 'M' | 'F') {
   if (!name) return '';
-  const suffix = gender === 'M' ? '先生' : '女士';
   
-  if (name.toLowerCase().includes('david') || name.toLowerCase().includes('smith')) {
-    return 'Mr. David S. (外宾)';
+  // 检测是否为外籍姓名（主要由英文、空格、点号组成）
+  const isEnglishName = /^[a-zA-Z\s.]+$/.test(name);
+
+  if (isEnglishName) {
+    const title = gender === 'M' ? 'Mr.' : 'Mrs.';
+    const parts = name.trim().split(/\s+/);
+    const lastName = parts[parts.length - 1];
+    return `${title} ${lastName}`;
   }
 
+  // 中文脱敏逻辑
+  const suffix = gender === 'M' ? '先生' : '女士';
   if (name.length <= 1) {
     return name + ' ' + suffix;
   } else if (name.length === 2) {
@@ -171,8 +178,8 @@ export function TVDisplay({
                 <div className="text-2xl font-black mt-1.5 tracking-wider text-[#22B8A7]">
                   {t.ticketNo}
                 </div>
-                <div className="text-xs font-bold text-slate-700 mt-1 truncate">
-                  {renderDesensitizedName(t.patient.name, t.patient.gender).split(' ')[0]}
+                <div className="text-xs font-bold text-slate-700 mt-1">
+                  {renderDesensitizedName(t.patient.name, t.patient.gender)}
                 </div>
               </div>
             ))}
