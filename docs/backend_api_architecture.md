@@ -232,6 +232,13 @@ stateDiagram-v2
 
 - `POST /api/v1/priority-requests`
 - `POST /api/v1/priority-requests/{request_id}/review`
+- `POST /api/v1/tts`
+
+TTS 约定：
+
+- `POST /api/v1/tts` 只接收一段要播报的 `text`
+- 返回值继续使用统一 envelope，`data` 内包含 `text`、`audioBase64` 和可选的 `url`
+- 前端在收到 `call.started`、`call.recalled`、`priority.reviewed` 之后，再自行请求这个接口生成并播放语音
 
 ### 7.4 健康检查
 
@@ -276,6 +283,8 @@ stateDiagram-v2
 说明：
 - 医生端和大屏端直接使用广播里的 `QueueSnapshot`
 - 患者端收到房间事件后重新拉取自己的 `queue-view`
+- `call.started`、`call.recalled`、`priority.reviewed` 不再内嵌 `ttsAnnouncements`
+- 如需语音播报，前端应在收到上述业务事件后自行调用 `POST /api/v1/tts`
 
 ## 9. AI 调用链
 
@@ -325,6 +334,7 @@ api/src/api/
     queue.py
     calls.py
     priority.py
+    tts.py
     dev.py
     health.py
     websocket.py
@@ -333,11 +343,13 @@ api/src/api/
     patient.py
     queue.py
     priority.py
+    tts.py
     dev.py
   services/
     queue_service.py
     priority_service.py
     connection_manager.py
+    tts_service.py
   adapters/
     llm_adapter.py
     mock_llm_adapter.py

@@ -1,0 +1,6 @@
+{
+  "name": "MediQueue 智能叫号系统",
+  "description": "基于多端联动控制、AI 紧急度评估与离线降级的医疗智能叫号系统 MVP",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
