@@ -30,9 +30,18 @@ if ! grep -q "DEEPSEEK_API_KEY=sk-" "$ENV_FILE"; then
     fi
 fi
 
+# 2. Dependency Installation
+echo "--- Installing Dependencies ---"
+
+echo "[1/2] Installing Backend Dependencies (uv sync)..."
+cd api && uv sync && cd ..
+
+echo "[2/2] Installing Frontend Dependencies (npm install)..."
+cd web && npm install && cd ..
+
 echo "--- Starting MediQueue Full Stack ---"
 
-# 2. Start Backend
+# 3. Start Backend
 echo "[1/2] Starting FastAPI Backend (Port 8000)..."
 cd api
 uv run uvicorn main:app --host 0.0.0.0 --port 8000 > backend.log 2>&1 &
@@ -42,11 +51,10 @@ cd ..
 # Wait for backend
 sleep 2
 
-# 3. Start Frontends
+# 4. Start Frontends
 echo "[2/2] Starting Web Frontends..."
 cd web
 
-# Use a process group to manage cleanup effectively
 npm run dev:center > sandbox.log 2>&1 &
 SANDBOX_PID=$!
 
@@ -68,18 +76,16 @@ echo "  > Mobile:  http://127.0.0.1:5175"
 echo "------------------------------------------------"
 echo "Press Ctrl+C to stop all services."
 
-# Cleanup function to kill all background processes and their children
+# Cleanup function
 cleanup() {
     echo ""
     echo "Stopping all services..."
-    # Kill the entire process group if supported, or individual PIDs
     kill $BACKEND_PID $SANDBOX_PID $DOCTOR_PID $TV_PID $MOBILE_PID 2>/dev/null
-    # Additional sweep for node/vite/uvicorn if any remain orphaned
     pkill -P $$ 2>/dev/null
     exit
 }
 
 trap cleanup INT
 
-# Keep the script alive
+# Keep script alive
 wait

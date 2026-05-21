@@ -32,24 +32,32 @@ if ($envContent -notmatch "DEEPSEEK_API_KEY=sk-") {
     }
 }
 
+# 2. Dependency Installation
+Write-Host "--- Installing Dependencies ---" -ForegroundColor Cyan
+
+Write-Host "[1/2] Installing Backend Dependencies (uv sync)..." -ForegroundColor Yellow
+Start-Process -FilePath "cmd.exe" -ArgumentList "/c uv sync" -WorkingDirectory "api" -NoNewWindow -Wait
+
+Write-Host "[2/2] Installing Frontend Dependencies (npm install)..." -ForegroundColor Yellow
+Start-Process -FilePath "cmd.exe" -ArgumentList "/c npm install" -WorkingDirectory "web" -NoNewWindow -Wait
+
 Write-Host "--- Starting MediQueue Full Stack ---" -ForegroundColor Cyan
 
 # Function to safely kill process tree
 function Stop-ProcessTree($pid) {
     if ($pid) {
-        # /F is force, /T is tree (includes children like Node/Python)
         Start-Process "taskkill.exe" -ArgumentList "/F /T /PID $pid" -NoNewWindow -Wait -ErrorAction SilentlyContinue
     }
 }
 
-# 2. Start Backend
+# 3. Start Backend
 Write-Host "[1/2] Starting FastAPI Backend (Port 8000)..." -ForegroundColor Yellow
 $backendJob = Start-Process -FilePath "cmd.exe" -ArgumentList "/c uv run uvicorn main:app --host 0.0.0.0 --port 8000 > backend.log 2>&1" -WorkingDirectory "api" -NoNewWindow -PassThru
 
 # Wait for backend
 Start-Sleep -Seconds 2
 
-# 3. Start Frontends
+# 4. Start Frontends
 Write-Host "[2/2] Starting Web Frontends (Redirection to logs)..." -ForegroundColor Yellow
 
 $frontendProcesses = @()
