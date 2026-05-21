@@ -194,7 +194,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#FDFBF9] border-t-4 border-emerald-600 text-[#433F3B] flex flex-col font-sans select-none antialiased selection:bg-emerald-100">
-      <header className="bg-white border-b border-stone-200/80 px-6 py-4 flex flex-wrap gap-4 items-center justify-between z-10 sticky top-0 shadow-sm backdrop-blur">
+      <header className="bg-white border-b border-stone-200/80 px-6 py-4 flex flex-wrap gap-4 items-center justify-between z-50 sticky top-0 shadow-sm backdrop-blur">
         <div className="flex items-center space-x-3">
           <div className="bg-gradient-to-tr from-[#388E3C] to-[#4CAF50] p-2.5 rounded-2xl text-white shadow-md shadow-emerald-500/10">
             <HeartHandshake className="h-6 w-6" />
@@ -255,9 +255,9 @@ export default function App() {
         </div>
       </header>
 
-      <main className="flex-1 p-6 overflow-hidden max-w-7xl mx-auto w-full">
+      <main className="flex-1 p-6 max-w-7xl mx-auto w-full">
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
-          <div className="xl:col-span-4 flex justify-center z-10 sticky top-24">
+          <div className="xl:col-span-4 flex justify-center z-20 sticky top-28">
             {mobileView}
           </div>
 
