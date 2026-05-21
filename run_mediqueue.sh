@@ -69,10 +69,10 @@ MOBILE_PID=$!
 
 echo "------------------------------------------------"
 echo "MediQueue is now running!"
-echo "  > Sandbox: http://127.0.0.1:5176"
-echo "  > Doctor:  http://127.0.0.1:5173"
-echo "  > TV:      http://127.0.0.1:5174"
-echo "  > Mobile:  http://127.0.0.1:5175"
+echo "  > Sandbox: http://127.0.0.1:5176/?view=sandbox"
+echo "  > Doctor:  http://127.0.0.1:5173/?view=doctor"
+echo "  > TV:      http://127.0.0.1:5174/?view=tv"
+echo "  > Mobile:  http://127.0.0.1:5175/?view=mobile"
 echo "------------------------------------------------"
 echo "Press Ctrl+C to stop all services."
 

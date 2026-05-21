@@ -36,10 +36,10 @@ if ($envContent -notmatch "DEEPSEEK_API_KEY=sk-") {
 Write-Host "--- Installing Dependencies ---" -ForegroundColor Cyan
 
 Write-Host "[1/2] Installing Backend Dependencies (uv sync)..." -ForegroundColor Yellow
-Start-Process -FilePath "cmd.exe" -ArgumentList "/c uv sync" -WorkingDirectory "api" -NoNewWindow -Wait
+Start-Process "cmd.exe" -ArgumentList "/c uv sync" -WorkingDirectory "api" -NoNewWindow -Wait
 
 Write-Host "[2/2] Installing Frontend Dependencies (npm install)..." -ForegroundColor Yellow
-Start-Process -FilePath "cmd.exe" -ArgumentList "/c npm install" -WorkingDirectory "web" -NoNewWindow -Wait
+Start-Process "cmd.exe" -ArgumentList "/c npm install" -WorkingDirectory "web" -NoNewWindow -Wait
 
 Write-Host "--- Starting MediQueue Full Stack ---" -ForegroundColor Cyan
 
@@ -63,14 +63,15 @@ Write-Host "[2/2] Starting Web Frontends (Redirection to logs)..." -ForegroundCo
 $frontendProcesses = @()
 
 $frontendTasks = @(
-    @{ name = "Sandbox"; script = "dev:center"; port = 5176; log = "sandbox.log" },
-    @{ name = "Doctor"; script = "dev:doctor"; port = 5173; log = "doctor.log" },
-    @{ name = "TV Display"; script = "dev:tv"; port = 5174; log = "tv.log" },
-    @{ name = "Mobile App"; script = "dev:mobile"; port = 5175; log = "mobile.log" }
+    @{ name = "Sandbox"; script = "dev:center"; port = 5176; log = "sandbox.log"; view = "sandbox" },
+    @{ name = "Doctor"; script = "dev:doctor"; port = 5173; log = "doctor.log"; view = "doctor" },
+    @{ name = "TV Display"; script = "dev:tv"; port = 5174; log = "tv.log"; view = "tv" },
+    @{ name = "Mobile App"; script = "dev:mobile"; port = 5175; log = "mobile.log"; view = "mobile" }
 )
 
 foreach ($task in $frontendTasks) {
-    Write-Host "  > Launching $($task.name): http://127.0.0.1:$($task.port)" -ForegroundColor Gray
+    # Ensure correct view is used by adding query param in the displayed URL
+    Write-Host "  > Launching $($task.name): http://127.0.0.1:$($task.port)/?view=$($task.view)" -ForegroundColor Gray
     $p = Start-Process -FilePath "cmd.exe" -ArgumentList "/c npm run $($task.script) > $($task.log) 2>&1" -WorkingDirectory "web" -NoNewWindow -PassThru
     $frontendProcesses += $p
 }
