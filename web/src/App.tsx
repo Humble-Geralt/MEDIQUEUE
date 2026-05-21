@@ -15,7 +15,7 @@ import { TVDisplay } from './display/TVDisplay';
 import { DoctorRoom } from './doctor/DoctorRoom';
 import { useMediQueueBridge } from './hooks/useMediQueueBridge';
 import { PatientMobile } from './patient/PatientMobile';
-import { playTtsAnnouncements } from './utils/tts';
+import { playTtsAnnouncements, stopTtsAnnouncements } from './utils/tts';
 
 type ViewMode = 'sandbox' | 'doctor' | 'tv' | 'mobile';
 
@@ -50,7 +50,7 @@ export default function App() {
   const [viewMode, setViewMode] = useState<ViewMode>(entryViewMode);
   const [language, setLanguage] = useState<'zh' | 'en'>('zh');
 
-  const bridge = useMediQueueBridge(simulateOffline);
+  const bridge = useMediQueueBridge(simulateOffline, viewMode === 'tv' || viewMode === 'sandbox');
   const snapshot = bridge.snapshot;
   const loading = bridge.loading;
   const isOffline = simulateOffline || bridge.isBackendOffline;
@@ -62,6 +62,12 @@ export default function App() {
     }
     void playTtsAnnouncements(bridge.lastSpeech.clips);
   }, [bridge.lastSpeech]);
+
+  useEffect(() => {
+    if (viewMode !== 'tv' && viewMode !== 'sandbox') {
+      stopTtsAnnouncements();
+    }
+  }, [viewMode]);
 
   const handleCallNext = async () => {
     try {

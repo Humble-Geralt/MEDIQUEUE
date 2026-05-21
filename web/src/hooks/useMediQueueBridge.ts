@@ -147,11 +147,14 @@ async function synthesizeSpeechPayload(
   };
 }
 
-export function useMediQueueBridge(simulateOffline: boolean) {
+export function useMediQueueBridge(simulateOffline: boolean, enableTts: boolean = false) {
   const [snapshot, setSnapshot] = useState<QueueSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [isBackendOffline, setIsBackendOffline] = useState(false);
   const [lastSpeech, setLastSpeech] = useState<SpeechPlaybackRequest | null>(null);
+
+  const enableTtsRef = useRef(enableTts);
+  enableTtsRef.current = enableTts;
 
   const bridgeRef = useRef(createBridgeState());
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -172,6 +175,10 @@ export function useMediQueueBridge(simulateOffline: boolean) {
 
   const requestSpeech = useCallback(
     async (message: BackendRoomEvent, currentSnapshot: QueueSnapshot | null) => {
+      if (!enableTtsRef.current) {
+        return;
+      }
+
       const texts = buildSpeechTexts(message, currentSnapshot);
       if (texts.length === 0) {
         return;
