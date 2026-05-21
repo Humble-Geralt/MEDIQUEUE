@@ -54,7 +54,7 @@ export default function App() {
   const snapshot = bridge.snapshot;
   const loading = bridge.loading;
   const isOffline = simulateOffline || bridge.isBackendOffline;
-  const isStandaloneView = entryViewMode !== 'sandbox' && viewMode !== 'sandbox';
+  const isStandaloneView = viewMode !== 'sandbox';
 
   useEffect(() => {
     if (!bridge.lastSpeech) {
