@@ -1,13 +1,13 @@
-#!/bin/bash
+﻿#!/bin/bash
 
-# MediQueue 一键启动脚本 (Bash 版)
+# MediQueue One-click Startup Script (Bash)
 
-# 1. 检查并引导配置 API Key
+# 1. Config API Key
 ENV_FILE="api/.env"
 EXAMPLE_FILE="api/.env.example"
 
 if [ ! -f "$ENV_FILE" ]; then
-    echo "--- 首次运行配置 ---"
+    echo "--- First Run Configuration ---"
     if [ -f "$EXAMPLE_FILE" ]; then
         cp "$EXAMPLE_FILE" "$ENV_FILE"
     else
@@ -15,57 +15,71 @@ if [ ! -f "$ENV_FILE" ]; then
     fi
 fi
 
-# 检查 DEEPSEEK_API_KEY 是否已配置
 if ! grep -q "DEEPSEEK_API_KEY=sk-" "$ENV_FILE"; then
-    echo "请输入您的 DeepSeek API Key (例如 sk-xxx):"
+    echo "Please enter your DeepSeek API Key (e.g., sk-xxx):"
     read -r API_KEY
     if [[ $API_KEY == sk-* ]]; then
-        # 替换或追加 API Key
         if grep -q "DEEPSEEK_API_KEY=" "$ENV_FILE"; then
             sed -i "s/DEEPSEEK_API_KEY=.*/DEEPSEEK_API_KEY=$API_KEY/" "$ENV_FILE"
         else
             echo "DEEPSEEK_API_KEY=$API_KEY" >> "$ENV_FILE"
         fi
-        echo "API Key 已保存至 $ENV_FILE"
+        echo "API Key saved to $ENV_FILE"
     else
-        echo "警告: 无效的 API Key 格式。程序将尝试继续运行，但 AI 评估功能可能失效。"
+        echo "Warning: Invalid API Key format."
     fi
 fi
 
-echo "--- 正在启动 MediQueue 全栈服务 ---"
+echo "--- Starting MediQueue Full Stack ---"
 
-# 2. 启动后端 (后台运行)
-echo "[1/2] 正在启动 FastAPI 后端 (端口 8000)..."
+# 2. Start Backend
+echo "[1/2] Starting FastAPI Backend (Port 8000)..."
 cd api
 uv run uvicorn main:app --host 0.0.0.0 --port 8000 > backend.log 2>&1 &
 BACKEND_PID=$!
 cd ..
 
-# 等待后端就绪
+# Wait for backend
 sleep 2
 
-# 3. 启动前端各端视图
-echo "[2/2] 正在启动 Web 前端服务群..."
+# 3. Start Frontends
+echo "[2/2] Starting Web Frontends..."
 cd web
 
-# 启动四个前端入口
-echo "  > 联动中心 (Sandbox): http://127.0.0.1:5176"
+# Use a process group to manage cleanup effectively
 npm run dev:center > sandbox.log 2>&1 &
+SANDBOX_PID=$!
 
-echo "  > 医生诊室: http://127.0.0.1:5173"
 npm run dev:doctor > doctor.log 2>&1 &
+DOCTOR_PID=$!
 
-echo "  > 候诊大屏: http://127.0.0.1:5174"
 npm run dev:tv > tv.log 2>&1 &
+TV_PID=$!
 
-echo "  > 患者移动端: http://127.0.0.1:5175"
 npm run dev:mobile > mobile.log 2>&1 &
+MOBILE_PID=$!
 
 echo "------------------------------------------------"
-echo "MediQueue 已全线启动！"
-echo "按 Ctrl+C 停止所有服务"
+echo "MediQueue is now running!"
+echo "  > Sandbox: http://127.0.0.1:5176"
+echo "  > Doctor:  http://127.0.0.1:5173"
+echo "  > TV:      http://127.0.0.1:5174"
+echo "  > Mobile:  http://127.0.0.1:5175"
 echo "------------------------------------------------"
+echo "Press Ctrl+C to stop all services."
 
-# 捕获退出信号并关闭所有后台进程
-trap "kill $BACKEND_PID $(jobs -p); exit" INT
+# Cleanup function to kill all background processes and their children
+cleanup() {
+    echo ""
+    echo "Stopping all services..."
+    # Kill the entire process group if supported, or individual PIDs
+    kill $BACKEND_PID $SANDBOX_PID $DOCTOR_PID $TV_PID $MOBILE_PID 2>/dev/null
+    # Additional sweep for node/vite/uvicorn if any remain orphaned
+    pkill -P $$ 2>/dev/null
+    exit
+}
+
+trap cleanup INT
+
+# Keep the script alive
 wait

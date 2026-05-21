@@ -34,9 +34,16 @@ if ($envContent -notmatch "DEEPSEEK_API_KEY=sk-") {
 
 Write-Host "--- Starting MediQueue Full Stack ---" -ForegroundColor Cyan
 
+# Function to safely kill process tree
+function Stop-ProcessTree($pid) {
+    if ($pid) {
+        # /F is force, /T is tree (includes children like Node/Python)
+        Start-Process "taskkill.exe" -ArgumentList "/F /T /PID $pid" -NoNewWindow -Wait -ErrorAction SilentlyContinue
+    }
+}
+
 # 2. Start Backend
 Write-Host "[1/2] Starting FastAPI Backend (Port 8000)..." -ForegroundColor Yellow
-# Use cmd /c to handle .exe path resolution properly
 $backendJob = Start-Process -FilePath "cmd.exe" -ArgumentList "/c uv run uvicorn main:app --host 0.0.0.0 --port 8000 > backend.log 2>&1" -WorkingDirectory "api" -NoNewWindow -PassThru
 
 # Wait for backend
@@ -56,7 +63,6 @@ $frontendTasks = @(
 
 foreach ($task in $frontendTasks) {
     Write-Host "  > Launching $($task.name): http://127.0.0.1:$($task.port)" -ForegroundColor Gray
-    # npm is a cmd file, must be called via cmd.exe /c
     $p = Start-Process -FilePath "cmd.exe" -ArgumentList "/c npm run $($task.script) > $($task.log) 2>&1" -WorkingDirectory "web" -NoNewWindow -PassThru
     $frontendProcesses += $p
 }
@@ -71,9 +77,10 @@ try {
         Start-Sleep -Seconds 1
     }
 } finally {
-    Write-Host "Stopping all services..." -ForegroundColor Red
-    $backendJob | Stop-Process -Force -ErrorAction SilentlyContinue
+    Write-Host "Stopping all services (Cleaning process trees)..." -ForegroundColor Red
+    Stop-ProcessTree $backendJob.Id
     foreach ($p in $frontendProcesses) {
-        $p | Stop-Process -Force -ErrorAction SilentlyContinue
+        Stop-ProcessTree $p.Id
     }
+    Write-Host "Cleanup complete." -ForegroundColor Green
 }
