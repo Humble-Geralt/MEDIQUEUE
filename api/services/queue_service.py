@@ -83,6 +83,16 @@ class QueueService:
         self.store.touch()
         return self._build_snapshot(), current_ticket
 
+    def recall_current(
+        self, room_no: str, expected_snapshot_version: str | None = None
+    ) -> tuple[QueueSnapshot, QueueTicket]:
+        self.ensure_room(room_no)
+        self.ensure_snapshot_version(expected_snapshot_version)
+        current_ticket = self._current_call_ticket()
+        if current_ticket is None or current_ticket.status != QueueTicketStatus.CALLED:
+            raise ApiError("NO_ACTIVE_CALL", "There is no active called patient.", 404)
+        return self._build_snapshot(), current_ticket
+
     def pause(self, room_no: str, expected_snapshot_version: str | None = None) -> QueueSnapshot:
         self.ensure_room(room_no)
         self.ensure_snapshot_version(expected_snapshot_version)
@@ -126,6 +136,9 @@ class QueueService:
         if ticket is None:
             raise ApiError("TICKET_NOT_FOUND", "Ticket does not exist.", 404)
         return ticket
+
+    def waiting_tickets(self) -> list[QueueTicket]:
+        return list(self._waiting_tickets())
 
     def ensure_room(self, room_no: str) -> None:
         if room_no != self.store.room_no:

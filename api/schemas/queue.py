@@ -36,6 +36,11 @@ class CallSkipBody(BaseSchema):
     expected_snapshot_version: str | None = None
 
 
+class CallRecallBody(BaseSchema):
+    room_no: str
+    expected_snapshot_version: str | None = None
+
+
 class PauseResumeBody(BaseSchema):
     room_no: str
     expected_snapshot_version: str | None = None

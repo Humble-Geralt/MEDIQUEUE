@@ -81,6 +81,7 @@ api/
 - `GET /api/v1/queue?roomNo=101`
 - `GET /api/v1/patients/{patient_id}/queue-view`
 - `POST /api/v1/calls/next`
+- `POST /api/v1/calls/recall`
 - `POST /api/v1/calls/skip`
 - `POST /api/v1/calls/pause`
 - `POST /api/v1/calls/resume`
@@ -88,6 +89,11 @@ api/
 - `POST /api/v1/priority-requests/{request_id}/review`
 - `POST /api/v1/dev/reset`
 - `WS /ws/rooms/{room_no}`
+
+TTS and realtime notes:
+- `call.started` broadcasts backend-generated bilingual `ttsAnnouncements`
+- `call.recalled` broadcasts backend-generated bilingual `ttsAnnouncements`
+- `priority.reviewed` includes bilingual queue-adjustment `ttsAnnouncements` when an approved urgent patient moves ahead of others
 
 接口约定：
 - REST 基础前缀为 `/api/v1`

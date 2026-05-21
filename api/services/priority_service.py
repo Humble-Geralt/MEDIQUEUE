@@ -61,7 +61,7 @@ class PriorityService:
         decision: ReviewDecision,
         room_no: str,
         expected_snapshot_version: str | None = None,
-    ) -> tuple[PriorityRequest, QueueSnapshot, QueueTicket]:
+    ) -> tuple[PriorityRequest, QueueSnapshot, QueueTicket, QueueTicket | None]:
         self.queue_service.ensure_room(room_no)
         self.queue_service.ensure_snapshot_version(expected_snapshot_version)
 
@@ -77,15 +77,19 @@ class PriorityService:
 
         ticket = self.queue_service.find_ticket(request.ticket_no)
         request.reviewed_at = now_iso()
+        delayed_ticket: QueueTicket | None = None
 
         if decision == ReviewDecision.APPROVE:
             request.review_status = PriorityRequestStatus.APPROVED
             ticket.priority_level = QueuePriorityLevel.PRIORITY_APPROVED
             if ticket.status == QueueTicketStatus.WAITING:
+                waiting_tickets = self.queue_service.waiting_tickets()
+                if waiting_tickets and waiting_tickets[0].ticket_no != ticket.ticket_no:
+                    delayed_ticket = waiting_tickets[0]
                 self.queue_service.move_ticket_to_waiting_front(ticket.ticket_no)
         else:
             request.review_status = PriorityRequestStatus.REJECTED
             ticket.priority_level = QueuePriorityLevel.NORMAL
 
         self.queue_service.store.touch()
-        return request, self.queue_service.get_snapshot(room_no), ticket
+        return request, self.queue_service.get_snapshot(room_no), ticket, delayed_ticket

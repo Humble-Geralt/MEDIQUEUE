@@ -223,6 +223,7 @@ stateDiagram-v2
 ### 7.2 医生调度
 
 - `POST /api/v1/calls/next`
+- `POST /api/v1/calls/recall`
 - `POST /api/v1/calls/skip`
 - `POST /api/v1/calls/pause`
 - `POST /api/v1/calls/resume`
