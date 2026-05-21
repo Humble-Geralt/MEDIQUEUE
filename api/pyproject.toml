@@ -1,0 +1,31 @@
+[project]
+name = "api"
+version = "0.1.0"
+description = "MediQueue FastAPI backend"
+authors = [
+    { name = "FelixYe", email = "yezihaofelix@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.136.1",
+    "pydantic>=2.13.4",
+    "uvicorn[standard]>=0.47.0",
+    "httpx>=0.28.1",
+    "python-dotenv>=1.2.2",
+    "edge-tts>=6.1.12",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["main"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["adapters*", "core*", "routes*", "schemas*", "services*", "store*"]
+
+[dependency-groups]
+dev = [
+]

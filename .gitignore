@@ -1,0 +1,8 @@
+api/.venv/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.uv-cache/
+.uv-tmp/

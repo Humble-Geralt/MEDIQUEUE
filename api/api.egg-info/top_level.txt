@@ -1,0 +1,7 @@
+adapters
+core
+main
+routes
+schemas
+services
+store
