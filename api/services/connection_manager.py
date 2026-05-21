@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import logging
 from typing import Any
 
 from fastapi import WebSocket
+from starlette.websockets import WebSocketDisconnect
 
 from core.enums import ConnectionRole
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -36,7 +40,17 @@ class ConnectionManager:
         self._rooms[room_no] = [
             item for item in room_connections if item.websocket is not websocket
         ]
+        if not self._rooms[room_no]:
+            self._rooms.pop(room_no, None)
 
     async def broadcast(self, room_no: str, message: dict[str, Any]) -> None:
         for connection in list(self._rooms.get(room_no, [])):
-            await connection.websocket.send_json(message)
+            try:
+                await connection.websocket.send_json(message)
+            except (RuntimeError, WebSocketDisconnect) as exc:
+                logger.info(
+                    "Dropping stale websocket during broadcast for room %s: %s",
+                    room_no,
+                    exc,
+                )
+                self.disconnect(connection.websocket, room_no)

@@ -87,13 +87,14 @@ api/
 - `POST /api/v1/calls/resume`
 - `POST /api/v1/priority-requests`
 - `POST /api/v1/priority-requests/{request_id}/review`
+- `POST /api/v1/tts`
 - `POST /api/v1/dev/reset`
 - `WS /ws/rooms/{room_no}`
 
 TTS and realtime notes:
-- `call.started` broadcasts backend-generated bilingual `ttsAnnouncements`
-- `call.recalled` broadcasts backend-generated bilingual `ttsAnnouncements`
-- `priority.reviewed` includes bilingual queue-adjustment `ttsAnnouncements` when an approved urgent patient moves ahead of others
+- queue-related WebSocket events now only broadcast business facts such as `call.started`, `call.recalled`, and `priority.reviewed`
+- the frontend requests `POST /api/v1/tts` after receiving those events when it needs spoken audio
+- `POST /api/v1/tts` accepts a plain `text` field and returns a generated clip payload with `text`, `audioBase64`, and optional `url`
 
 接口约定：
 - REST 基础前缀为 `/api/v1`

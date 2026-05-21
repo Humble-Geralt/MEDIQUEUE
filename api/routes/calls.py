@@ -8,10 +8,8 @@ from services.connection_manager import ConnectionManager
 from services.dependencies import (
     get_connection_manager,
     get_queue_service,
-    get_tts_service,
 )
 from services.queue_service import QueueService
-from services.tts_service import TtsService
 
 router = APIRouter(tags=["calls"])
 
@@ -20,14 +18,10 @@ router = APIRouter(tags=["calls"])
 async def call_next(
     body: CallNextBody,
     queue_service: QueueService = Depends(get_queue_service),
-    tts_service: TtsService = Depends(get_tts_service),
     connection_manager: ConnectionManager = Depends(get_connection_manager),
 ) -> dict:
     snapshot, next_ticket = queue_service.call_next(
         body.room_no, body.expected_snapshot_version
-    )
-    announcements = tts_service.serialize_announcements(
-        await tts_service.build_call_announcement(next_ticket)
     )
 
     await connection_manager.broadcast(
@@ -38,8 +32,6 @@ async def call_next(
                 "roomNo": body.room_no,
                 "currentCall": queue_service.build_public_call_payload(next_ticket),
                 "snapshotVersion": snapshot.snapshot_version,
-                "isRecall": False,
-                "ttsAnnouncements": announcements,
             },
         },
     )
@@ -57,14 +49,10 @@ async def call_next(
 async def recall_current(
     body: CallRecallBody,
     queue_service: QueueService = Depends(get_queue_service),
-    tts_service: TtsService = Depends(get_tts_service),
     connection_manager: ConnectionManager = Depends(get_connection_manager),
 ) -> dict:
     snapshot, current_ticket = queue_service.recall_current(
         body.room_no, body.expected_snapshot_version
-    )
-    announcements = tts_service.serialize_announcements(
-        await tts_service.build_call_announcement(current_ticket, is_recall=True)
     )
 
     await connection_manager.broadcast(
@@ -75,8 +63,6 @@ async def recall_current(
                 "roomNo": body.room_no,
                 "currentCall": queue_service.build_public_call_payload(current_ticket),
                 "snapshotVersion": snapshot.snapshot_version,
-                "isRecall": True,
-                "ttsAnnouncements": announcements,
             },
         },
     )
@@ -167,4 +153,3 @@ async def resume_calls(
         },
     )
     return success_response(snapshot, snapshot.snapshot_version)
-

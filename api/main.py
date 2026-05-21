@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 
 from core.config import APP_TITLE, APP_VERSION
 from core.errors import ApiError
-from routes import calls, dev, health, priority, queue, websocket
+from routes import calls, dev, health, priority, queue, tts, websocket
 from schemas.common import error_response
 
 app = FastAPI(title=APP_TITLE, version=APP_VERSION)
@@ -26,6 +26,7 @@ app.include_router(calls.router, prefix="/api/v1")
 app.include_router(priority.router, prefix="/api/v1")
 app.include_router(dev.router, prefix="/api/v1")
 app.include_router(health.router, prefix="/api/v1")
+app.include_router(tts.router, prefix="/api/v1")
 app.include_router(websocket.router)
 
 
