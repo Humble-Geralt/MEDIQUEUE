@@ -217,7 +217,47 @@ AI 负责：
 
 本项目提供了**一键启动脚本**，可以自动引导配置 API Key、安装依赖并拉起全栈服务。
 
-### 3.1 一键启动 (推荐)
+### 3.1 Docker 一键启动 (推荐)
+
+如果本机已安装 Docker Desktop 或 Docker Engine，可以直接通过 Compose 拉起完整服务：
+
+```bash
+docker compose -f docker/docker-compose.yml up --build
+```
+
+默认会启动：
+
+| 服务 | 容器端口 | 本机访问 |
+| --- | --- | --- |
+| FastAPI 后端 | `8000` | [http://localhost:8000](http://localhost:8000) |
+| Web 前端 | `5173` | [http://localhost:5173/?view=sandbox](http://localhost:5173/?view=sandbox) |
+
+Docker 启动时默认启用 `edge-tts`：
+
+```bash
+TTS_PROVIDER=edge-tts
+TTS_ENABLED=true
+```
+
+如需启用 DeepSeek 真实 AI 分析，可以在启动前通过环境变量传入 Key：
+
+```bash
+DEEPSEEK_API_KEY=sk-xxx docker compose -f docker/docker-compose.yml up --build
+```
+
+前端镜像默认从 `public.ecr.aws/docker/library/node:24-alpine` 拉取 Node.js 基础镜像，以减少 Docker Hub 认证超时问题。如需改回 Docker Hub 或使用内网镜像源，可以覆盖构建参数：
+
+```bash
+docker compose -f docker/docker-compose.yml build --build-arg NODE_IMAGE=node:24-alpine web
+```
+
+停止服务：
+
+```bash
+docker compose -f docker/docker-compose.yml down
+```
+
+### 3.2 脚本一键启动
 
 - **Windows (PowerShell)**:
   ```powershell
@@ -235,7 +275,7 @@ AI 负责：
 3. **全栈拉起**：自动启动 FastAPI 后端（端口 8000）及 Web 前端服务（端口 5173）。
 4. **一键清理**：按下 `Ctrl+C` 即可同时停止所有后台进程，确保端口不被残留占用。
 
-### 3.2 访问地址预览
+### 3.3 访问地址预览
 
 启动后，统一通过 **5173 端口** 配合视图参数进行访问：
 
@@ -248,11 +288,11 @@ AI 负责：
 
 ---
 
-### 3.3 手动分步启动 (进阶)
+### 3.4 手动分步启动 (进阶)
 
 如果您需要进行深度调试，也可以手动启动：
 
-#### 3.3.1 后端启动 (Python / FastAPI)
+#### 3.4.1 后端启动 (Python / FastAPI)
 1. **安装 uv**：确保已安装 [uv](https://docs.astral.sh/uv/)。
 2. **配置环境**：`copy api/.env.example api/.env` 并填写 Key。
 3. **运行**：
@@ -262,7 +302,7 @@ AI 负责：
    uv run uvicorn main:app --reload
    ```
 
-#### 3.3.2 前端启动 (React / Vite)
+#### 3.4.2 前端启动 (React / Vite)
 1. **安装依赖**：`cd web && npm install`
 2. **启动服务**：`npm run dev`
 3. **访问视图**：在浏览器打开 `http://localhost:5173` 并手动添加 `?view=doctor` 等参数。

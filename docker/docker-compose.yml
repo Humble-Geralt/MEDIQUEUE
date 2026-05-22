@@ -1,0 +1,36 @@
+name: mediqueue
+
+services:
+  api:
+    build:
+      context: ../api
+      dockerfile: Dockerfile
+    image: mediqueue-api
+    container_name: mediqueue-api
+    environment:
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL:-https://api.deepseek.com}
+      TTS_PROVIDER: ${TTS_PROVIDER:-edge-tts}
+      TTS_ENABLED: ${TTS_ENABLED:-true}
+      API_PORT: 8000
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ../web
+      dockerfile: Dockerfile
+    image: mediqueue-web
+    container_name: mediqueue-web
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://127.0.0.1:8000}
+      VITE_WS_BASE_URL: ${VITE_WS_BASE_URL:-ws://127.0.0.1:8000}
+      VITE_ROOM_NO: ${VITE_ROOM_NO:-101}
+      VITE_DEFAULT_VIEW: ${VITE_DEFAULT_VIEW:-sandbox}
+      WEB_PORT: 5173
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
+    restart: unless-stopped

@@ -56,6 +56,12 @@ export default function App() {
   const isOffline = simulateOffline || bridge.isBackendOffline;
   const isStandaloneView = viewMode !== 'sandbox';
 
+  const buildStandaloneViewUrl = (targetView: Exclude<ViewMode, 'sandbox'>) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('view', targetView);
+    return url.toString();
+  };
+
   useEffect(() => {
     if (!bridge.lastSpeech) {
       return;
@@ -205,6 +211,36 @@ export default function App() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
+          <div className="inline-flex rounded-xl bg-white border border-stone-200 p-1 shadow-xxs">
+            <a
+              href={buildStandaloneViewUrl('doctor')}
+              target="_blank"
+              rel="noreferrer"
+              className="px-3 py-1 text-xs font-bold rounded-lg flex items-center cursor-pointer text-stone-600 hover:bg-emerald-50 hover:text-emerald-700"
+            >
+              <Users className="h-3.5 w-3.5 mr-1" />
+              {language === 'zh' ? '医生端' : 'Doctor'}
+            </a>
+            <a
+              href={buildStandaloneViewUrl('tv')}
+              target="_blank"
+              rel="noreferrer"
+              className="px-3 py-1 text-xs font-bold rounded-lg flex items-center cursor-pointer text-stone-600 hover:bg-emerald-50 hover:text-emerald-700"
+            >
+              <MonitorPlay className="h-3.5 w-3.5 mr-1" />
+              {language === 'zh' ? '大屏端' : 'TV'}
+            </a>
+            <a
+              href={buildStandaloneViewUrl('mobile')}
+              target="_blank"
+              rel="noreferrer"
+              className="px-3 py-1 text-xs font-bold rounded-lg flex items-center cursor-pointer text-stone-600 hover:bg-emerald-50 hover:text-emerald-700"
+            >
+              <Smartphone className="h-3.5 w-3.5 mr-1" />
+              {language === 'zh' ? '患者端' : 'Mobile'}
+            </a>
+          </div>
+
           <div className="inline-flex rounded-xl bg-stone-100 border border-stone-200 p-1">
             <button
               onClick={() => setLanguage('zh')}
@@ -257,7 +293,7 @@ export default function App() {
 
       <main className="flex-1 p-6 max-w-7xl mx-auto w-full">
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
-          <div className="xl:col-span-4 flex justify-center z-20 sticky top-28">
+          <div className="xl:col-span-4 flex justify-center z-20 xl:sticky xl:top-28">
             {mobileView}
           </div>
 
